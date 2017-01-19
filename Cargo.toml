@@ -1,0 +1,9 @@
+[package]
+name = "linearkalman"
+version = "0.1.0"
+authors = ["Rytis Bagdziunas <mail@rbagd.eu>"]
+
+[dependencies]
+rulinalg = "0.4.1"
+csv = "0.14"
+rustc-serialize = "0.3"

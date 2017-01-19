@@ -1,0 +1,29 @@
+sudo: false
+language: rust
+
+rust:
+  - stable
+  - beta
+  - nightly
+
+matrix:
+  allow_failures:
+    - rust: nightly
+
+before_scipt:
+  - |
+      pip install 'travis-cargo<0.2' --user &&
+      export PATH=$HOME/.local/bin:$PATH
+
+script:
+  - |
+      travis-cargo build &&
+      travis-cargo test &&
+      travis-cargo --only stable doc
+
+after_success:
+  - travis-cargo --only stable doc-upload
+
+env:
+  global:
+    - TRAVIS_CARGO_NIGHTLY-FEATURE=nightly

@@ -58,9 +58,9 @@ use rulinalg::vector::Vector;
 /// * `p0`: initial condition for the state covariance
 #[derive(Debug)]
 pub struct KalmanFilter {
-    pub q: Matrix<f64>,   // State covariance
-    pub r: Matrix<f64>,   // Measurement covariance
-    pub h: Matrix<f64>,   // State-dependence matrix
+    pub q: Matrix<f64>,   // Process noise covariance
+    pub r: Matrix<f64>,   // Measurement noise covariance
+    pub h: Matrix<f64>,   // Observation matrix
     pub f: Matrix<f64>,   // State transition matrix
     pub x0: Vector<f64>,  // State variable initial value
     pub p0: Matrix<f64>   // State covariance initial value

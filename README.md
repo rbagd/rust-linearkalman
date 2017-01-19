@@ -26,14 +26,14 @@ use linearkalman::KalmanFilter;
 fn main() {
 
   let kalman_filter = KalmanFilter {
-    // State covariance matrix
+    // Process noise covariance
     q: matrix![1.0, 0.1;
                0.1, 1.0],
-    // Process covariance matrix
+    // Measurement noise matrix
     r: matrix![1.0, 0.2, 0.1;
                0.2, 0.8, 0.5;
                0.1, 0.5, 1.2],
-    // State-dependence matrix
+    // Observation matrix
     h: matrix![1.0, 0.7;
                0.5, 0.7;
                0.8, 0.1],

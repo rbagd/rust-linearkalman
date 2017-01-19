@@ -1,7 +1,16 @@
 [package]
 name = "linearkalman"
+description = "Linear Kalman filtering and smoothing"
 version = "0.1.0"
 authors = ["Rytis Bagdziunas <mail@rbagd.eu>"]
+include = [ "**/*.rs",
+            "Cargo.toml" ]
+documentation = "http://rbagd.eu/rust-linearkalman/linearkalman/index.html"
+homepage = "https://github.com/rbagd/rust-linearkalman"
+repository = "https://github.com/rbagd/rust-linearkalman"
+readme = "README.md"
+keywords = ["kalman", "filter", "smoothing"]
+license = "GPL-3.0"
 
 [dependencies]
 rulinalg = "0.4.1"

@@ -1,5 +1,11 @@
 # Kalman filtering and smoothing library written in Rust
 
+[![Build Status](https://travis-ci.org/rbagd/rust-linearkalman.svg?branch=master)](https://travis-ci.org/rbagd/rust-linearkalman)
+
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
+
+Access documentation for the library [here](http://rbagd.eu/rust-linearkalman/linearkalman/index.html).
+
 Currently, library provides only time-invariant linear Kalman filtering and smoothing technique is known as fixed-interval smoothing (Rauch-Tung-Striebel smoother) which relies on Kalman filter estimates for the entire dataset.
 
 This library relies on [rulinalg] library to implement linear algebra structures and operations and so input data is expected to be a `std::vec::Vec` of [Vector<f64>] objects, i.e. a vector of vectors.

@@ -1,4 +1,4 @@
-# Kalman filtering and smoothing library written in [Rust].
+# Kalman filtering and smoothing library written in Rust
 
 Currently, library provides only time-invariant linear Kalman filtering and smoothing technique is known as fixed-interval smoothing (Rauch-Tung-Striebel smoother) which relies on Kalman filter estimates for the entire dataset.
 

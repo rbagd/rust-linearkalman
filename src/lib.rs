@@ -125,12 +125,12 @@ impl KalmanFilter {
         let mut predicted: Vec<KalmanState> = Vec::with_capacity(t);
 
         let mut init = KalmanState {
-            x: (&self.x0).clone(),
-            p: (&self.p0).clone(),
+            x: (self.x0).clone(),
+            p: (self.p0).clone(),
         };
 
         for k in 0..t {
-            let filt = filter_step(&self, init, &data[k]);
+            let filt = filter_step(self, init, &data[k]);
             // Update initial conditions
             init = (&filt.0).clone();
             // Add filtered measurements to the container
@@ -190,11 +190,11 @@ impl KalmanFilter {
         let mut smoothed: Vec<KalmanState> = Vec::with_capacity(t);
 
         // Do Kalman smoothing in reverse order
-        let mut init = (&filtered[t - 1]).clone();
-        smoothed.push((&filtered[t - 1]).clone());
+        let mut init = (filtered[t - 1]).clone();
+        smoothed.push((filtered[t - 1]).clone());
 
         for k in 1..t {
-            smoothed.push(smoothing_step(&self, &init,
+            smoothed.push(smoothing_step(self, &init,
                                          &filtered[t-k-1],
                                          &predicted[t-k-1]));
             init = (&smoothed[k]).clone();
@@ -235,14 +235,14 @@ pub fn filter_step(kalman_filter: &KalmanFilter,
     (KalmanState { x: x, p: p }, KalmanState { x: xp, p: pp })
 }
 
-fn smoothing_step(kfilter: &KalmanFilter,
+fn smoothing_step(kalman_filter: &KalmanFilter,
                   init: &KalmanState,
                   filtered: &KalmanState,
                   predicted: &KalmanState)
                   -> KalmanState {
 
-    let j: Matrix<f64> = &filtered.p * &kfilter.f.transpose() * &predicted.p.clone()
-        .inverse()
+    let j: Matrix<f64> = &filtered.p * &kalman_filter.f.transpose() *
+        &predicted.p.clone().inverse()
         .expect("Predicted state covariance matrix could not be inverted.");
     let x: Vector<f64> = &filtered.x + &j * (&init.x - &predicted.x);
     let p: Matrix<f64> = &filtered.p - &j * (&init.p - &predicted.p) * &j.transpose();

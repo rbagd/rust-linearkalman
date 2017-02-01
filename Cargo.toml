@@ -1,7 +1,7 @@
 [package]
 name = "linearkalman"
 description = "Linear Kalman filtering and smoothing"
-version = "0.1.0"
+version = "0.1.2"
 authors = ["Rytis Bagdziunas <mail@rbagd.eu>"]
 include = [ "**/*.rs",
             "Cargo.toml" ]
@@ -14,5 +14,6 @@ license = "GPL-3.0"
 
 [dependencies]
 rulinalg = "0.4.1"
+
+[dev-dependencies]
 csv = "0.14"
-rustc-serialize = "0.3"

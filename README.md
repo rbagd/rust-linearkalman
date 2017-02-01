@@ -1,18 +1,29 @@
 # Kalman filtering and smoothing library written in Rust
 
 [![Build Status](https://travis-ci.org/rbagd/rust-linearkalman.svg?branch=master)](https://travis-ci.org/rbagd/rust-linearkalman)
-
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 
-Access documentation for the library [here](http://rbagd.eu/rust-linearkalman/linearkalman/index.html).
+Access documentation for the library [here](http://rbagd.eu/rust-linearkalman/linearkalman/index.html). Library is also referenced in [Cargo][cargo] index.
 
-Currently, library provides only time-invariant linear Kalman filtering and smoothing technique is known as fixed-interval smoothing (Rauch-Tung-Striebel smoother) which relies on Kalman filter estimates for the entire dataset.
+Currently, library provides only time-invariant linear Kalman filtering and smoothing technique is known as fixed-interval smoothing (Rauch-Tung-Striebel smoother) which relies on Kalman filter estimates for the entire dataset. `linearkalman` relies on [rulinalg] library to implement linear algebra structures and operations and so input data is expected to be a `std::vec::Vec` of [Vector<f64>] objects, i.e. a vector of vectors.
 
-This library relies on [rulinalg] library to implement linear algebra structures and operations and so input data is expected to be a `std::vec::Vec` of [Vector<f64>] objects, i.e. a vector of vectors.
+In order to use this library, make sure your `Cargo.toml` file contains the following:
+
+```toml
+[dependencies]
+linearkalman = "0.1.2"
+```
+
+Library can then be imported using:
+
+```rust
+extern crate linearkalman;
+```
+
 
 ## Example
 
-Below example assumes 3-dimensional measurement data with an underlying 2-dimensional state space model. With the help of a few macros from [rulinalg], a simple attempt to use the library to do Kalman filtering would be as follows.
+Below example assumes 3-dimensional measurement data with an underlying 2-dimensional state space model. With the help of a few macros from [rulinalg], a simple attempt to use the library to run Kalman filter and smoother would be as follows.
 
 
 ```rust
@@ -72,3 +83,4 @@ This project is licensed under GPL3.
 
 [rulinalg]: https://github.com/AtheMathmo/rulinalg
 [Vector<f64>]: https://athemathmo.github.io/rulinalg/doc/rulinalg/vector/struct.Vector.html
+[cargo]: https://crates.io/crates/linearkalman

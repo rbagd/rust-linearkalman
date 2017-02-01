@@ -118,11 +118,9 @@ impl KalmanFilter {
     pub fn filter(&self, data: &Vec<Vector<f64>>) -> (Vec<KalmanState>, Vec<KalmanState>) {
 
         let t: usize = data.len();
-        // Containers to store data, Kalman predictions, updates
-        // and smoothed estimates
-        // let mut measured: Vec<Vector<f64>> = Vec::new();
-        let mut filtered: Vec<KalmanState> = Vec::with_capacity(t);
+        // Containers for predicted and filtered estimates
         let mut predicted: Vec<KalmanState> = Vec::with_capacity(t);
+        let mut filtered: Vec<KalmanState> = Vec::with_capacity(t);
 
         let mut init = KalmanState {
             x: (self.x0).clone(),

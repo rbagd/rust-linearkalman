@@ -196,7 +196,7 @@ impl KalmanFilter {
         for k in 1..t {
             smoothed.push(smoothing_step(self, &init,
                                          &filtered[t-k-1],
-                                         &predicted[t-k-1]));
+                                         &predicted[t-k]));
             init = (&smoothed[k]).clone();
         }
 

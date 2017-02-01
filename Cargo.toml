@@ -10,6 +10,7 @@ homepage = "https://github.com/rbagd/rust-linearkalman"
 repository = "https://github.com/rbagd/rust-linearkalman"
 readme = "README.md"
 keywords = ["kalman", "filter", "smoothing"]
+categories = ["science"]
 license = "GPL-3.0"
 
 [dependencies]

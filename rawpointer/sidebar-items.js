@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["ptrdistance","Return the number of elements of `T` from `start` to `end`.<br> Return the arithmetic difference if `T` is zero size."]],"trait":[["PointerExt","Extension methods for raw pointers"]]});

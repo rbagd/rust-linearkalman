@@ -30,7 +30,7 @@
 //!
 //! * `J_{t} = P_{t|t} F'_{t} P_{t+1|t}^{-1}`
 //! * `x_{t|T} = x_{t|t} + J_{t} * (x_{t+1|T} - x_{t+1|t})`
-//! * `P_{t|T} = P_{t|t} - J_{t} * (P_{t+1|T} - P_{t+1|t}) * J'_{t}`
+//! * `P_{t|T} = P_{t|t} + J_{t} * (P_{t+1|T} - P_{t+1|t}) * J'_{t}`
 //!
 //! Nomenclature:
 //!
@@ -243,7 +243,7 @@ fn smoothing_step(kalman_filter: &KalmanFilter,
         &predicted.p.clone().inverse()
         .expect("Predicted state covariance matrix could not be inverted.");
     let x: Vector<f64> = &filtered.x + &j * (&init.x - &predicted.x);
-    let p: Matrix<f64> = &filtered.p - &j * (&init.p - &predicted.p) * &j.transpose();
+    let p: Matrix<f64> = &filtered.p + &j * (&init.p - &predicted.p) * &j.transpose();
 
     KalmanState { x: x, p: p }
 

@@ -40,6 +40,12 @@
 //!
 //! For now, it is assumed here that `B_{t}` matrix is null and that `Q_{t},
 //! R_{t}, H_{t}` and `F_{t}` matrices are constant over time.
+//!
+//! Besides real data, algorithm takes as inputs `H`, `R`, `F` and `Q` matrices
+//! as well as initial guesses for state mean `x0 = x_{1|0}`and covariance
+//! matrix `P0 = P_{1|0}`. Covariance matrix `P0` indicates the uncertainty
+//! related to the guess of `x0`.
+
 
 extern crate rulinalg;
 
@@ -54,8 +60,8 @@ use rulinalg::vector::Vector;
 /// * `r`: measurement noise covariance
 /// * `h`: observation matrix
 /// * `f`: state transition matrix
-/// * `x0`: initial condition for the state variable
-/// * `p0`: initial condition for the state covariance
+/// * `x0`: initial guess for state mean at time 1
+/// * `p0`: initial guess for state covariance at time 1
 #[derive(Debug)]
 pub struct KalmanFilter {
     pub q: Matrix<f64>,   // Process noise covariance
@@ -118,23 +124,17 @@ impl KalmanFilter {
     pub fn filter(&self, data: &Vec<Vector<f64>>) -> (Vec<KalmanState>, Vec<KalmanState>) {
 
         let t: usize = data.len();
+
         // Containers for predicted and filtered estimates
-        let mut predicted: Vec<KalmanState> = Vec::with_capacity(t);
+        let mut predicted: Vec<KalmanState> = Vec::with_capacity(t+1);
         let mut filtered: Vec<KalmanState> = Vec::with_capacity(t);
 
-        let mut init = KalmanState {
-            x: (self.x0).clone(),
-            p: (self.p0).clone(),
-        };
+        predicted.push(KalmanState { x: (self.x0).clone(),
+                                     p: (self.p0).clone() });
 
         for k in 0..t {
-            let filt = filter_step(self, init, &data[k]);
-            // Update initial conditions
-            init = (&filt.0).clone();
-            // Add filtered measurements to the container
-            filtered.push(filt.0);
-            // Add predicted measurements to the container
-            predicted.push(filt.1);
+            filtered.push(update_step(self, &predicted[k], &data[k]));
+            predicted.push(predict_step(self, &filtered[k]));
         }
 
         (filtered, predicted)
@@ -143,8 +143,9 @@ impl KalmanFilter {
     /// Takes in output from `filter` method and returns smoothed data.
     /// Smoothing procedure uses not only past values as is done by `filter` but
     /// also future values to better predict value of the underlying state
-    /// variable. Contrary to the filtering process, incremental smoothing
-    /// requires re-running Kalman filter on the entire dataset.
+    /// variable. Underlying algorithm is known as Rauch-Tung-Striebel smoother
+    /// for a fixed interval. Contrary to the filtering process, incremental
+    /// smoothing would require re-running Kalman filter on the entire dataset.
     ///
     /// # Examples
     ///
@@ -203,35 +204,63 @@ impl KalmanFilter {
     }
 }
 
-/// Returns a tuple containing posterior and prior estimates (in that order) of
-/// the state variable and its covariance. This function might be useful for
-/// cases where data is incoming and being updated in real-time so that Kalman
-/// filtering is run incrementally. It is the working horse of the `filter` method
-/// for `KalmanFilter` struct.
-pub fn filter_step(kalman_filter: &KalmanFilter,
-                   init: KalmanState,
-                   measure: &Vector<f64>)
-                   -> (KalmanState, KalmanState) {
-
-    let identity = Matrix::<f64>::identity(init.x.size());
+/// Returns a predicted state variable mean and covariance. If prediction for
+/// time `t` is desired, then `KalmanState` object with initial conditions
+/// contains state mean and covariance at time `t-1` given information up to
+/// time `t-1`.
+pub fn predict_step(kalman_filter: &KalmanFilter,
+                    init: &KalmanState)
+                    -> KalmanState {
 
     // Predict state variable and covariance
-    let xp: Vector<f64> = &kalman_filter.f * init.x;
-    let pp: Matrix<f64> = &kalman_filter.f * init.p * &kalman_filter.f.transpose() +
+    let xp: Vector<f64> = &kalman_filter.f * &init.x;
+    let pp: Matrix<f64> = &kalman_filter.f * &init.p * &kalman_filter.f.transpose() +
         &kalman_filter.q;
 
+    KalmanState { x: xp, p: pp}
+}
+
+/// Returns an updated state variable mean and covariance given predicted and
+/// observed data. Typically, update step will be called after prediction step,
+/// data of which will be consequently used as input in updating.
+pub fn update_step(kalman_filter: &KalmanFilter,
+                   pred: &KalmanState,
+                   measure: &Vector<f64>)
+                   -> KalmanState {
+
+    let identity = Matrix::<f64>::identity(kalman_filter.x0.size());
+
     // Compute Kalman gain
-    let k: Matrix<f64> = &pp * &kalman_filter.h.transpose() *
-        (&kalman_filter.h * &pp * &kalman_filter.h.transpose() + &kalman_filter.r)
+    let k: Matrix<f64> = &pred.p * &kalman_filter.h.transpose() *
+        (&kalman_filter.h * &pred.p * &kalman_filter.h.transpose() + &kalman_filter.r)
         .inverse()
         .expect("Kalman gain computation failed due to failure to invert.");
 
     // Update state variable and covariance
-    let x = &xp + &k * (measure - &kalman_filter.h * &xp);
-    let p = (identity - &k * &kalman_filter.h) * &pp;
+    let x = &pred.x + &k * (measure - &kalman_filter.h * &pred.x);
+    let p = (identity - &k * &kalman_filter.h) * &pred.p;
 
-    (KalmanState { x: x, p: p }, KalmanState { x: xp, p: pp })
+    KalmanState { x: x, p: p }
+
 }
+
+/// Returns a tuple containing updated and predicted estimates (in that order)
+/// of the state variable and its covariance. This function might be useful for
+/// cases where data is incoming and being updated in real-time so that Kalman
+/// filtering is run incrementally. Note that given some initial values for `x`
+/// and `P`, `filter_step` makes a prediction and then runs the update step to
+/// correct the prediction based on the observed data.
+pub fn filter_step(kalman_filter: &KalmanFilter,
+                   init: &KalmanState,
+                   measure: &Vector<f64>)
+                   -> (KalmanState, KalmanState) {
+
+    let pred = predict_step(kalman_filter, init);
+    let upd = update_step(kalman_filter, &pred, measure);
+
+    (KalmanState { x: upd.x, p: upd.p }, KalmanState { x: pred.x, p: pred.p })
+}
+
 
 fn smoothing_step(kalman_filter: &KalmanFilter,
                   init: &KalmanState,

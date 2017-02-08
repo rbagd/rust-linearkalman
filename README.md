@@ -11,7 +11,7 @@ In order to use this library, make sure your `Cargo.toml` file contains the foll
 
 ```toml
 [dependencies]
-linearkalman = "0.1.2"
+linearkalman = "0.1.3"
 ```
 
 Library can then be imported using:
@@ -51,9 +51,9 @@ fn main() {
     // State transition matrix
     f: matrix![0.6, 0.2;
                0.1, 0.3],
-    // State variable initial value
+    // Initial guess for state mean at time 1
     x0: vector![1.0, 1.0],
-    // State variable initial covariance
+    // Initial guess for state covariance at time 1
     p0: matrix![1.0, 0.0;
                 0.0, 1.0],
   };
